@@ -1,0 +1,102 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "igor.kaist@gmail.com",
+    "longName": "\u0428\u0435\u043f\u043e\u0442 (\u043d\u0430\u043f\u043e\u043c\u0438\u043d\u0430\u043b\u043a\u0438)",
+    "projectType": "pebblejs",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu_icon.png",
+                "name": "IMAGE_MENU_ICON",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/logo_splash.png",
+                "name": "IMAGE_LOGO_SPLASH",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/tile_splash.png",
+                "name": "IMAGE_TILE_SPLASH",
+                "type": "bitmap"
+            },
+            {
+                "file": "fonts/UbuntuMono-Regular.ttf",
+                "name": "MONO_FONT_14",
+                "type": "font"
+            },
+            {
+                "file": "images/icon.png",
+                "menuIcon": true,
+                "name": "IMAGES_ICON_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/note.png",
+                "name": "IMAGES_NOTE_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/down.png",
+                "name": "IMAGES_DOWN_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/up.png",
+                "name": "IMAGES_UP_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/medved.png",
+                "name": "IMAGES_MEDVED_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/delete.png",
+                "name": "IMAGES_DELETE_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/apply.png",
+                "name": "IMAGES_APPLY_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/reminder.png",
+                "name": "IMAGES_REMINDER_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/more.png",
+                "name": "IMAGES_MORE_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/mic.png",
+                "name": "IMAGES_MIC_PNG",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/splash.png",
+                "name": "IMAGES_SPLASH_PNG",
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "\u0428\u0435\u043f\u043e\u0442",
+    "targetPlatforms": [
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "3a78498a-d2a9-46f5-9cbb-2b945634b247",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "hiddenApp": false,
+        "watchface": false
+    }
+}
