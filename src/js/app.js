@@ -23,6 +23,11 @@ var show_type='old';
 var all_data=[];
 var cur_sel=0;
 
+var note_type='main';
+
+
+
+
 
 function isdigit(str){
     return /^\d+$/.test(str);
@@ -32,7 +37,21 @@ var utro=9;
 var obed=12;
 var vecher=18;
 var tomorow_hour=9;
+var vibe_type='long';
+var snooze=10;
 
+if (localStorage.getItem('note_type')){
+  note_type=localStorage.getItem('note_type');
+}
+if (localStorage.getItem('vibe_type')){
+  vibe_type=localStorage.getItem('vibe_type');
+}
+
+if (localStorage.getItem('tomorow')){ tomorow_hour=localStorage.getItem('tomorow');}
+if (localStorage.getItem('utro')){ utro=localStorage.getItem('utro');}
+if (localStorage.getItem('obed')){ obed=localStorage.getItem('obed');}
+if (localStorage.getItem('vecher')){ vecher=localStorage.getItem('vecher');}
+if (localStorage.getItem('snooze')){ snooze=localStorage.getItem('snooze');}
 
 
 function	in_list(w,lst){
@@ -266,6 +285,12 @@ det_wind.on('click', 'select', function() {
   if (show_type=='many'){remove_item();}  
 });
 det_wind.on('click','up',function(){
+  if (show_type=='open'){   
+    cur_data.date.setTime(cur_data.date.getTime() + (snooze*60*1000)); 
+    add_new();
+    return;
+      
+      }
   if (show_type!='many'){return;}
   if (cur_sel===0){return;}
   cur_sel-=1;
@@ -289,6 +314,10 @@ det_wind.on('click','down',function(){
 function remove_item(){
   var cur=all_data[cur_sel];
   if (cur.id){Wakeup.cancel(cur.id);}
+  if (cur.pin){
+    push_pin(cur_data,'delete');
+    
+  }
   all_data.splice(cur_sel, 1);
   localStorage.setItem('data',JSON.stringify(all_data));
   det_wind.hide();
@@ -302,6 +331,17 @@ function add_new(){
 
   if (cur_data.type=='reminder')
   {
+    if (note_type=='timeline'){
+      push_pin(cur_data,'new');
+      cur_data.pin= 'sh'+cur_data.date.getTime();
+      all_data.push(cur_data);
+      localStorage.setItem('data',JSON.stringify(all_data));
+      det_wind.hide();
+      Vibe.vibrate('short');     
+      
+    }
+    else{
+    
     Wakeup.schedule(
   {
     time: cur_data.date.getTime()/1000,
@@ -340,6 +380,7 @@ function add_new(){
   }
 );
   }
+  }
   else {
     all_data.push(cur_data);
     localStorage.setItem('data',JSON.stringify(all_data));
@@ -377,7 +418,9 @@ function prepare_one(){
     if (cur_sel<all_data.length-1){det_wind.action('down', 'images/down.png');}
     
   }
-  if (show_type=='open'){det_wind.action('select', 'images/apply.png');}
+  if (show_type=='open'){
+    det_wind.action('select', 'images/apply.png');
+    det_wind.action('up', 'images/later.png');}
   
   if (cur_data.type=='reminder'){
     red_rect.backgroundColor('DarkCandyAppleRed');
@@ -418,7 +461,7 @@ function parse_voice(text){
 function start_voice(){
   
   if (false){
-  parse_voice('напомни завтра позвонить мише и многим еще их друзья');
+  parse_voice('напомни через 1 минут call misha');
 
   }
   else{
@@ -460,7 +503,89 @@ splash.on('click', 'down', function() {show_list();});
 
 function v(){Vibe.vibrate('long');}
 
+
+
+function timelineRequest(pin, type, topics, apiKey, callback) {
+  // User or shared?
+  var url = 'https://timeline-api.getpebble.com/' + 'v1/' + ((topics != null) ? 'shared/' : 'user/') + 'pins/' + pin.id;
+
+  // Create XHR
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    console.log('timeline: response received: ' + this.responseText);
+    callback(this.responseText);
+  };
+  xhr.open(type, url);
+
+  // Set headers
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  if(topics != null) {
+    xhr.setRequestHeader('X-Pin-Topics', '' + topics.join(','));
+    xhr.setRequestHeader('X-API-Key', '' + apiKey);
+  }
+
+  // Get token
+  Pebble.getTimelineToken(function(token) {
+    // Add headers
+    xhr.setRequestHeader('X-User-Token', '' + token);
+
+    // Send
+    xhr.send(JSON.stringify(pin));
+    console.log('timeline: request sent.');
+  }, function(error) { console.log('timeline: error getting timeline token: ' + error); });
+}
+
+/**
+ * Insert a pin into the timeline for this user.
+ * @param pin The JSON pin to insert.
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function insertUserPin(pin, callback) {
+  timelineRequest(pin, 'PUT', null, null, callback);
+}
+
+function deleteUserPin(pin, callback) {
+  timelineRequest(pin, 'DELETE', null, null, callback);
+}
+
+function push_pin(data,act){
+    // An hour ahead
+  var date = data.date;
+  
+
+  // Create the pin
+
+  
+  var pin={
+  "id": "sh"+date.getTime(),
+  "time": date.toISOString(),
+  "layout": {
+    "type": "genericPin",
+    "title": data.text,
+    "tinyIcon": "system://images/TIMELINE_CALENDAR"
+  },
+    "reminders": [
+    {
+      "time": date.toISOString(),
+      "layout": {
+        "type": "genericReminder",
+        "tinyIcon": "system://images/TIMELINE_CALENDAR",
+        "title": data.text
+      }
+    }
+      ]
+    
+  
+
+};
+
+
+  if (act=='new'){insertUserPin(pin, function(responseText) { console.log('Result: ' + responseText);}); }
+  if (act=='delete'){deleteUserPin(pin, function(responseText) {console.log('Result: ' + responseText); }) ;}             
+}
+
 Wakeup.launch(function(e) {
+  
   if (localStorage.getItem('data')){
     all_data=JSON.parse(localStorage.getItem('data'));
   }
@@ -489,7 +614,9 @@ Wakeup.launch(function(e) {
     cur_data.date=new Date(e.data.date);
     show_type='open';
     prepare_one();
-    setInterval(v,1000);
+    if (vibe_type=='long'){setInterval(v,1000);}
+    else{v();}
+  
     
   } else {  
     splash.show();
@@ -501,4 +628,44 @@ Wakeup.launch(function(e) {
 
     
   }
+});
+
+Pebble.addEventListener('webviewclosed', function(e) {
+  console.log(e.response);
+
+  var config = JSON.parse(decodeURIComponent(e.response));
+  note_type=config.note_type;
+  localStorage.setItem('note_type',note_type);
+  vibe_type=config.vibe_type;
+  localStorage.setItem('vibe_type',vibe_type);  
+  tomorow_hour=config.tomorow;
+  localStorage.setItem('tomorow',tomorow_hour);  
+  utro=config.utro;
+  localStorage.setItem('utro',utro);  
+  obed=config.obed;
+  localStorage.setItem('obed',vecher);  
+  vecher=config.vecher;
+  localStorage.setItem('vecher',vecher);  
+  snooze=config.snooze;
+  localStorage.setItem('snooze',snooze);  
+});
+
+function open_config(){
+   var data={};
+  
+  data.note_type=note_type;
+  data.vibe_type=vibe_type;
+  data.tomorow=tomorow_hour;
+  data.utro=utro;
+  data.obed=obed;
+  data.vecher=vecher;
+  data.snooze=snooze;
+  var url = 'https://kaist.github.io/shepot.html#'+encodeURIComponent(JSON.stringify(data));
+
+  Pebble.openURL(url); 
+}
+
+Pebble.addEventListener('showConfiguration', function() {
+  open_config();
+
 });
